@@ -1,9 +1,11 @@
-package jsx.parser.layer;
+package jsx.layer;
 
+import common.ImageExtension;
 import common.ImageExtension;
 import lib.FileDirectory;
 import psd.Layer;
-using common.ImageExtension.ImageExtensionUtil;
+
+using common.ImageExtension;
 
 class LayerProperty
 {
@@ -38,7 +40,7 @@ class LayerProperty
 			case IncludedImageExtension.EXISTS(imageExtension):
 
 				// aaa/bbb/ccc.png -> aaa/bbb/ccc
-				var tempPath = layerName.split(imageExtension)[0];
+				var tempPath = layerName.split(ImageExtension.COLUMN + imageExtension)[0];
 
 				// aaa/bbb/ccc -> ccc
 				defaultName = tempPath.split(FileDirectory.PATH_COLUMN).pop();
@@ -46,7 +48,7 @@ class LayerProperty
 	}
 	public function isIncludedImageExtension():Bool
 	{
-		return includedImageExtension != IncludedImageExtension.NONE;
+		return !Type.enumEq(includedImageExtension, IncludedImageExtension.NONE);
 	}
 	public function equals(check:Layer):Bool
 	{
@@ -54,18 +56,26 @@ class LayerProperty
 	}
 	public function toDefaultName()
 	{
-		layer.name = defaultName;
+		if(isChanged())
+			layer.name = defaultName;
 	}
 	public function toSimpleName()
 	{
-		layer.name = defaultName + ImageExtension.PNG;
+		if(isChanged())
+			layer.name = defaultName + ImageExtension.COLUMN + OptionalParameter.instance.imageExtension;
 	}
 	public function toAbsolutePathName()
 	{
-		layer.name = absolutePath + ImageExtension.PNG;
+		if(isChanged())
+			layer.name = absolutePath + ImageExtension.COLUMN + OptionalParameter.instance.imageExtension;
 	}
-	public function getDirectoryPathString():String
+	private function isChanged():Bool
 	{
-		return directoryPath.join(FileDirectory.PATH_COLUMN);
+		switch(includedImageExtension)
+		{
+			case IncludedImageExtension.NONE: return true;
+			case IncludedImageExtension.EXISTS(imageExtension):
+				return OptionalParameter.instance.imageExtension == imageExtension;
+		}
 	}
 }

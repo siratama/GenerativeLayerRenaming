@@ -17,6 +17,7 @@ body {
   position: relative; }
 
 button {
+  margin: 0 0 5px 10px;
   height: 32px;
   width: 130px;
   color: #d7d7d7;
@@ -67,9 +68,33 @@ hr {
 ul {
   list-style: none; }
 
-li {
-  margin: 5px; }
-  li input {
-    vertical-align: middle; }
+input {
+  vertical-align: middle; }
+
+label:hover {
+  background-color: #777777; }
+
+#image_extension {
+  margin: 10px 0 10px 10px; }
+  #image_extension p {
+    margin: 0 0 5px 0; }
+  #image_extension input {
+    background: #a0a0a0;
+    border: 1px solid #000000;
+    font-size: 12px;
+    padding-left: 4px;
+    width: 120px; }
+
+#renaming_layer_type {
+  margin: 10px 0 10px 10px; }
+  #renaming_layer_type p {
+    margin: 0 0 5px 0; }
+  #renaming_layer_type li {
+    margin: 0 0 3px 0; }
+    #renaming_layer_type li label, #renaming_layer_type li input[type="radio"] {
+      cursor: pointer; }
+
+#run {
+  margin: 10px 0 0 0; }
 
 /*# sourceMappingURL=index.css.map */

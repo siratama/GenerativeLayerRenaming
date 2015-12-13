@@ -234,6 +234,23 @@ common_JsxEvent.NONE = ["NONE",0];
 common_JsxEvent.NONE.toString = $estr;
 common_JsxEvent.NONE.__enum__ = common_JsxEvent;
 common_JsxEvent.GOTTEN = function(serializedEvent) { var $x = ["GOTTEN",1,serializedEvent]; $x.__enum__ = common_JsxEvent; $x.toString = $estr; return $x; };
+var common_RenamingLayerType = $hxClasses["common.RenamingLayerType"] = { __ename__ : ["common","RenamingLayerType"], __constructs__ : ["SELECTED","INCLUDED_IMAGE_EXTENSION"] };
+common_RenamingLayerType.SELECTED = ["SELECTED",0];
+common_RenamingLayerType.SELECTED.toString = $estr;
+common_RenamingLayerType.SELECTED.__enum__ = common_RenamingLayerType;
+common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION = ["INCLUDED_IMAGE_EXTENSION",1];
+common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION.toString = $estr;
+common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION.__enum__ = common_RenamingLayerType;
+var common_RenamingMode = $hxClasses["common.RenamingMode"] = { __ename__ : ["common","RenamingMode"], __constructs__ : ["ABSOLUTE_PATH","SIMPLE","DEFAULT"] };
+common_RenamingMode.ABSOLUTE_PATH = ["ABSOLUTE_PATH",0];
+common_RenamingMode.ABSOLUTE_PATH.toString = $estr;
+common_RenamingMode.ABSOLUTE_PATH.__enum__ = common_RenamingMode;
+common_RenamingMode.SIMPLE = ["SIMPLE",1];
+common_RenamingMode.SIMPLE.toString = $estr;
+common_RenamingMode.SIMPLE.__enum__ = common_RenamingMode;
+common_RenamingMode.DEFAULT = ["DEFAULT",2];
+common_RenamingMode.DEFAULT.toString = $estr;
+common_RenamingMode.DEFAULT.__enum__ = common_RenamingMode;
 var extension_AbstractCSInterface = function(csInterface) {
 	this.csInterface = csInterface;
 };
@@ -265,80 +282,6 @@ extension_AbstractCSInterface.prototype = {
 		return;
 	}
 	,__class__: extension_AbstractCSInterface
-};
-var extension_FrameAnimationExporterEvent = $hxClasses["extension.FrameAnimationExporterEvent"] = { __ename__ : ["extension","FrameAnimationExporterEvent"], __constructs__ : ["INITIAL_ERROR_EVENT","SUCCESS","NONE"] };
-extension_FrameAnimationExporterEvent.INITIAL_ERROR_EVENT = function(error) { var $x = ["INITIAL_ERROR_EVENT",0,error]; $x.__enum__ = extension_FrameAnimationExporterEvent; $x.toString = $estr; return $x; };
-extension_FrameAnimationExporterEvent.SUCCESS = ["SUCCESS",1];
-extension_FrameAnimationExporterEvent.SUCCESS.toString = $estr;
-extension_FrameAnimationExporterEvent.SUCCESS.__enum__ = extension_FrameAnimationExporterEvent;
-extension_FrameAnimationExporterEvent.NONE = ["NONE",2];
-extension_FrameAnimationExporterEvent.NONE.toString = $estr;
-extension_FrameAnimationExporterEvent.NONE.__enum__ = extension_FrameAnimationExporterEvent;
-var extension_FrameAnimationExporter = function() {
-	this.csInterface = extension_AbstractCSInterface.create();
-};
-$hxClasses["extension.FrameAnimationExporter"] = extension_FrameAnimationExporter;
-extension_FrameAnimationExporter.__name__ = ["extension","FrameAnimationExporter"];
-extension_FrameAnimationExporter.prototype = {
-	getEvent: function() {
-		var n = this.event;
-		this.event = extension_FrameAnimationExporterEvent.NONE;
-		return n;
-	}
-	,run: function() {
-		this.mainFunction();
-	}
-	,call: function(frame1offset,ignoredFrame1Output,sameNameLayerIsIdentical) {
-		var _g = this;
-		this.event = extension_FrameAnimationExporterEvent.NONE;
-		this.jsxEvent = common_JsxEvent.NONE;
-		var frame1offsetData = haxe_Serializer.run(frame1offset);
-		var ignoredFrame1OutputData = haxe_Serializer.run(ignoredFrame1Output);
-		var sameNameLayerIsIdenticalData = haxe_Serializer.run(sameNameLayerIsIdentical);
-		this.csInterface.evalScript("var " + "frameAnimationExport" + " = new " + "FrameAnimationExport" + "(\"" + frame1offsetData + "\", \"" + ignoredFrame1OutputData + "\", \"" + sameNameLayerIsIdenticalData + "\");");
-		this.csInterface.evalScript("" + "frameAnimationExport" + ".getInitialErrorEvent();",function(result) {
-			_g.jsxEvent = common_JsxEvent.GOTTEN(result);
-		});
-		this.mainFunction = $bind(this,this.observeToRecieveInitialErrorEvent);
-	}
-	,observeToRecieveInitialErrorEvent: function() {
-		{
-			var _g = this.recieveJsxEvent();
-			switch(_g[1]) {
-			case 0:
-				return;
-			case 1:
-				var serializedEvent = _g[2];
-				var initialErrorEvent = haxe_Unserializer.run(serializedEvent);
-				switch(initialErrorEvent[1]) {
-				case 1:
-					var error = initialErrorEvent[2];
-					this.destroy(extension_FrameAnimationExporterEvent.INITIAL_ERROR_EVENT(error));
-					break;
-				case 0:
-					this.execute();
-					break;
-				}
-				break;
-			}
-		}
-	}
-	,execute: function() {
-		this.csInterface.evalScript("" + "frameAnimationExport" + ".execute();");
-		this.destroy(extension_FrameAnimationExporterEvent.SUCCESS);
-	}
-	,recieveJsxEvent: function() {
-		var n = this.jsxEvent;
-		this.jsxEvent = common_JsxEvent.NONE;
-		return n;
-	}
-	,destroy: function(event) {
-		this.event = event;
-		this.mainFunction = $bind(this,this.finish);
-	}
-	,finish: function() {
-	}
-	,__class__: extension_FrameAnimationExporter
 };
 var extension_JsxLoader = function() {
 	this.csInterface = extension_AbstractCSInterface.create();
@@ -375,6 +318,82 @@ extension_JsxLoader.prototype = {
 	}
 	,__class__: extension_JsxLoader
 };
+var extension_JsxRunnerEvent = $hxClasses["extension.JsxRunnerEvent"] = { __ename__ : ["extension","JsxRunnerEvent"], __constructs__ : ["INITIAL_ERROR_EVENT","SUCCESS","NONE"] };
+extension_JsxRunnerEvent.INITIAL_ERROR_EVENT = function(error) { var $x = ["INITIAL_ERROR_EVENT",0,error]; $x.__enum__ = extension_JsxRunnerEvent; $x.toString = $estr; return $x; };
+extension_JsxRunnerEvent.SUCCESS = ["SUCCESS",1];
+extension_JsxRunnerEvent.SUCCESS.toString = $estr;
+extension_JsxRunnerEvent.SUCCESS.__enum__ = extension_JsxRunnerEvent;
+extension_JsxRunnerEvent.NONE = ["NONE",2];
+extension_JsxRunnerEvent.NONE.toString = $estr;
+extension_JsxRunnerEvent.NONE.__enum__ = extension_JsxRunnerEvent;
+var extension_JsxRunner = function() {
+	this.csInterface = extension_AbstractCSInterface.create();
+};
+$hxClasses["extension.JsxRunner"] = extension_JsxRunner;
+extension_JsxRunner.__name__ = ["extension","JsxRunner"];
+extension_JsxRunner.prototype = {
+	getEvent: function() {
+		var n = this.event;
+		this.event = extension_JsxRunnerEvent.NONE;
+		return n;
+	}
+	,run: function() {
+		this.mainFunction();
+	}
+	,call: function(imageExtension,renamingMode,renamingLayerType) {
+		var _g = this;
+		this.imageExtension = imageExtension;
+		this.renamingMode = renamingMode;
+		this.renamingLayerType = renamingLayerType;
+		this.event = extension_JsxRunnerEvent.NONE;
+		this.jsxEvent = common_JsxEvent.NONE;
+		this.csInterface.evalScript("var " + "jsxInstance" + " = new " + "GenerativeLayerRenaming" + "();");
+		this.csInterface.evalScript("" + "jsxInstance" + ".getInitialErrorEvent();",function(result) {
+			_g.jsxEvent = common_JsxEvent.GOTTEN(result);
+		});
+		this.mainFunction = $bind(this,this.observeToRecieveInitialErrorEvent);
+	}
+	,observeToRecieveInitialErrorEvent: function() {
+		{
+			var _g = this.recieveJsxEvent();
+			switch(_g[1]) {
+			case 0:
+				return;
+			case 1:
+				var serializedEvent = _g[2];
+				var initialErrorEvent = haxe_Unserializer.run(serializedEvent);
+				switch(initialErrorEvent[1]) {
+				case 1:
+					var error = initialErrorEvent[2];
+					this.destroy(extension_JsxRunnerEvent.INITIAL_ERROR_EVENT(error));
+					break;
+				case 0:
+					this.execute();
+					break;
+				}
+				break;
+			}
+		}
+	}
+	,execute: function() {
+		var serializedRenamingMode = haxe_Serializer.run(this.renamingMode);
+		var serializedRenamingLayerType = haxe_Serializer.run(this.renamingLayerType);
+		this.csInterface.evalScript("" + "jsxInstance" + ".execute(\"" + this.imageExtension + "\", \"" + serializedRenamingMode + "\", \"" + serializedRenamingLayerType + "\");");
+		this.destroy(extension_JsxRunnerEvent.SUCCESS);
+	}
+	,recieveJsxEvent: function() {
+		var n = this.jsxEvent;
+		this.jsxEvent = common_JsxEvent.NONE;
+		return n;
+	}
+	,destroy: function(event) {
+		this.event = event;
+		this.mainFunction = $bind(this,this.finish);
+	}
+	,finish: function() {
+	}
+	,__class__: extension_JsxRunner
+};
 var extension_Panel = function() {
 	window.addEventListener("load",$bind(this,this.initialize));
 };
@@ -387,7 +406,7 @@ extension_Panel.prototype = {
 	initialize: function(event) {
 		this.csInterface = extension_AbstractCSInterface.create();
 		this.jsxLoader = new extension_JsxLoader();
-		this.frameAnimationExporter = new extension_FrameAnimationExporter();
+		this.jsxRunner = new extension_JsxRunner();
 		if(extension_View.instance == null) this.view = extension_View.instance = new extension_View(); else this.view = extension_View.instance;
 		this.startRunning($bind(this,this.loadJsx),50);
 	}
@@ -414,21 +433,31 @@ extension_Panel.prototype = {
 		this.changeRunning($bind(this,this.observeToClickUI),250);
 	}
 	,observeToClickUI: function() {
-		if(this.view.runButton.isClicked()) this.initializeToCallFrameAnimationExport(false); else if(this.view.runFrame1OffsetButton.isClicked()) this.initializeToCallFrameAnimationExport(true);
+		{
+			var _g = this.view.getEvent();
+			switch(_g[1]) {
+			case 0:
+				return;
+			case 1:
+				var renamingMode = _g[2];
+				this.initializeToCallFrameAnimationExport(renamingMode);
+				break;
+			}
+		}
 	}
-	,initializeToCallFrameAnimationExport: function(frame1offset) {
-		this.frameAnimationExporter.call(frame1offset,this.view.isIgnoredFrame1Output(),this.view.sameNameLayerIsIdentical());
+	,initializeToCallFrameAnimationExport: function(renamingMode) {
+		this.jsxRunner.call(this.view.getImageExtension(),renamingMode,this.view.getRenamingLayerType());
 		this.changeRunning($bind(this,this.callFrameAnimationExport),50);
 	}
 	,callFrameAnimationExport: function() {
-		this.frameAnimationExporter.run();
-		var event = this.frameAnimationExporter.getEvent();
+		this.jsxRunner.run();
+		var event = this.jsxRunner.getEvent();
 		switch(event[1]) {
 		case 2:
 			return;
 		case 0:
 			var error = event[2];
-			js_Lib.alert(js_Boot.__cast(error , String));
+			js_Browser.alert(js_Boot.__cast(error , String));
 			this.initializeToClickUI();
 			break;
 		case 1:
@@ -440,8 +469,12 @@ extension_Panel.prototype = {
 };
 var extension_View = function() {
 	this.element = $("#container");
-	this.runButton = new extension_parts_Button(this.element,"run_button");
-	this.runFrame1OffsetButton = new extension_parts_Button(this.element,"run_frame1_offset_button");
+	var runElement = $("#run");
+	this.setTitleBar("run_title",runElement);
+	this.absolutePathButton = new extension_parts_Button(runElement,"absolute_path");
+	this.simpleButton = new extension_parts_Button(runElement,"simple");
+	this.defaultButton = new extension_parts_Button(runElement,"default");
+	this.setTitleBar("setting_title",$("#setting"));
 };
 $hxClasses["extension.View"] = extension_View;
 extension_View.__name__ = ["extension","View"];
@@ -449,17 +482,35 @@ extension_View.get_instance = function() {
 	if(extension_View.instance == null) return extension_View.instance = new extension_View(); else return extension_View.instance;
 };
 extension_View.prototype = {
-	isIgnoredFrame1Output: function() {
-		return this.isChecked("ignored_frame1_output");
+	setTitleBar: function(titleBarId,slideElement) {
+		var titleElement = $("#" + titleBarId);
+		titleElement.mousedown(function(event) {
+			if(slideElement["is"](":hidden")) slideElement.slideDown("fast"); else slideElement.slideUp("fast");
+		});
 	}
-	,sameNameLayerIsIdentical: function() {
-		return this.isChecked("same_name_layer_is_identical");
+	,getEvent: function() {
+		if(this.absolutePathButton.isClicked()) return extension_ViewEvent.CLICKED(common_RenamingMode.ABSOLUTE_PATH); else if(this.simpleButton.isClicked()) return extension_ViewEvent.CLICKED(common_RenamingMode.SIMPLE); else if(this.defaultButton.isClicked()) return extension_ViewEvent.CLICKED(common_RenamingMode.DEFAULT); else return extension_ViewEvent.NONE;
 	}
-	,isChecked: function(className) {
-		return $("." + className,this.element)["is"](":checked");
+	,getRenamingLayerType: function() {
+		var inputElements = $("#renaming_layer_type input:radio[name='renaming_layer_type']");
+		var selectedIndex = inputElements.index(inputElements.filter(":checked"));
+		switch(selectedIndex) {
+		case 0:
+			return common_RenamingLayerType.SELECTED;
+		default:
+			return common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION;
+		}
+	}
+	,getImageExtension: function() {
+		return $("#image_extension input",this.element).val();
 	}
 	,__class__: extension_View
 };
+var extension_ViewEvent = $hxClasses["extension.ViewEvent"] = { __ename__ : ["extension","ViewEvent"], __constructs__ : ["NONE","CLICKED"] };
+extension_ViewEvent.NONE = ["NONE",0];
+extension_ViewEvent.NONE.toString = $estr;
+extension_ViewEvent.NONE.__enum__ = extension_ViewEvent;
+extension_ViewEvent.CLICKED = function(renamingMode) { var $x = ["CLICKED",1,renamingMode]; $x.__enum__ = extension_ViewEvent; $x.toString = $estr; return $x; };
 var extension_parts_Button = function(parentElement,className) {
 	var _g = this;
 	this.element = $("." + className,parentElement);
@@ -1383,11 +1434,11 @@ js_Boot.__isNativeObj = function(o) {
 js_Boot.__resolveNativeClass = function(name) {
 	return $global[name];
 };
-var js_Lib = function() { };
-$hxClasses["js.Lib"] = js_Lib;
-js_Lib.__name__ = ["js","Lib"];
-js_Lib.alert = function(v) {
-	alert(js_Boot.__string_rec(v,""));
+var js_Browser = function() { };
+$hxClasses["js.Browser"] = js_Browser;
+js_Browser.__name__ = ["js","Browser"];
+js_Browser.alert = function(v) {
+	window.alert(js_Boot.__string_rec(v,""));
 };
 var js_html_compat_ArrayBuffer = function(a) {
 	if((a instanceof Array) && a.__enum__ == null) {
@@ -1596,13 +1647,14 @@ var ArrayBuffer = $global.ArrayBuffer || js_html_compat_ArrayBuffer;
 if(ArrayBuffer.prototype.slice == null) ArrayBuffer.prototype.slice = js_html_compat_ArrayBuffer.sliceImpl;
 var DataView = $global.DataView || js_html_compat_DataView;
 var Uint8Array = $global.Uint8Array || js_html_compat_Uint8Array._new;
-common_ClassName.FRAME_ANIMATION_EXPORT = "FrameAnimationExport";
-extension_FrameAnimationExporter.INSTANCE_NAME = "frameAnimationExport";
+common_ClassName.JSX_CLASS = "GenerativeLayerRenaming";
 extension_JsxLoader.JSX_DIRECTORY = "/jsx/";
 extension_JsxLoader.JSX_EXTENSION = ".jsx";
-extension_JsxLoader.LOAD_JSX_SET = ["FrameAnimationExport"];
+extension_JsxLoader.LOAD_JSX_SET = ["GenerativeLayerRenaming"];
+extension_JsxRunner.INSTANCE_NAME = "jsxInstance";
 extension_Panel.TIMER_SPEED_CALM = 250;
 extension_Panel.TIMER_SPEED_RUNNING = 50;
+extension_View.SLIDE_SPEED = "fast";
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";

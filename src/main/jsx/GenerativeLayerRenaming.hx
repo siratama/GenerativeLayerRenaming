@@ -1,10 +1,10 @@
 package jsx;
 
+import common.RenamingMode;
 import psd.Layer;
-import common.Mode;
+import common.RenamingLayerType;
 import js.Lib;
-import common.ImageExtension;
-import jsx.parser.layer.LayerStructure;
+import jsx.layer.LayerStructure;
 import jsx.util.LayerUtil;
 import common.GenerativeLayerRenamingInitialErrorEvent;
 import haxe.Serializer;
@@ -26,19 +26,19 @@ class GenerativeLayerRenaming
 	public static function main()
 	{
 		#if ToAbsolutePathInSelectedLayer
-		GenerativeLayerRenamingJSXRunner.toAbsolutePath(Mode.SELECTED_LAYER);
+		GenerativeLayerRenamingJSXRunner.execute(RenamingMode.ABSOLUTE_PATH, RenamingLayerType.SELECTED);
 		#elseif ToAbsolutePathInImageExtensionLayer
-		GenerativeLayerRenamingJSXRunner.toAbsolutePath(Mode.IMAGE_EXTENSION_LAYER);
+		GenerativeLayerRenamingJSXRunner.execute(RenamingMode.ABSOLUTE_PATH, RenamingLayerType.INCLUDED_IMAGE_EXTENSION);
 
 		#elseif ToDefaultInSelectedLayer
-		GenerativeLayerRenamingJSXRunner.toDefaultName(Mode.SELECTED_LAYER);
+		GenerativeLayerRenamingJSXRunner.execute(RenamingMode.DEFAULT, RenamingLayerType.SELECTED);
 		#elseif ToDefaultInImageExtensionLayer
-		GenerativeLayerRenamingJSXRunner.toDefaultName(Mode.IMAGE_EXTENSION_LAYER);
+		GenerativeLayerRenamingJSXRunner.execute(RenamingMode.DEFAULT, RenamingLayerType.INCLUDED_IMAGE_EXTENSION);
 
 		#elseif ToSimpleInSelectedLayer
-		GenerativeLayerRenamingJSXRunner.toDefaultExtensionName(Mode.SELECTED_LAYER);
+		GenerativeLayerRenamingJSXRunner.execute(RenamingMode.SIMPLE, RenamingLayerType.SELECTED);
 		#elseif ToSimpleInImageExtensionLayer
-		GenerativeLayerRenamingJSXRunner.toDefaultExtensionName(Mode.IMAGE_EXTENSION_LAYER);
+		GenerativeLayerRenamingJSXRunner.execute(RenamingMode.SIMPLE, RenamingLayerType.INCLUDED_IMAGE_EXTENSION);
 		#end
 	}
 	public function new()
@@ -56,59 +56,21 @@ class GenerativeLayerRenaming
 	}
 
 	//
-	public function toAbsolutePath(serializedImageExtension:String, serializedMode:String):Void
+	public function execute(imageExtension:String, serializedRenamingMode:String, serializedRenamingLayerType:String):Void
 	{
-		var mode:Mode = Unserializer.run(serializedMode);
-		OptionalParameter.instance.set(Unserializer.run(serializedImageExtension));
+		var renamingMode:RenamingMode = Unserializer.run(serializedRenamingMode);
+		var renamingLayerType:RenamingLayerType = Unserializer.run(serializedRenamingLayerType);
+		OptionalParameter.instance.set(imageExtension);
 
 		activeDocument = application.activeDocument;
-		var layerStructure = createLayerStructure();
-
-		layerStructure.toAbsolutePathLayerName(
-			getSelectedLayerSet(mode)
-		);
-	}
-	public function toDefault(serializedImageExtension:String, serializedMode:String)
-	{
-		var mode:Mode = Unserializer.run(serializedMode);
-		OptionalParameter.instance.set(Unserializer.run(serializedImageExtension));
-
-		activeDocument = application.activeDocument;
-		var layerStructure = createLayerStructure();
-
-		layerStructure.toDefaultLayerName(
-			getSelectedLayerSet(mode)
-		);
-	}
-	public function toSaimple(serializedImageExtension:String, serializedMode:String)
-	{
-		var mode:Mode = Unserializer.run(serializedMode);
-		OptionalParameter.instance.set(Unserializer.run(serializedImageExtension));
-
-		activeDocument = application.activeDocument;
-		var layerStructure = createLayerStructure();
-
-		layerStructure.toSaimpleLayerName(
-			getSelectedLayerSet(mode)
-		);
-	}
-	private function createLayerStructure():LayerStructure
-	{
 		var layerStructure = new LayerStructure(activeDocument, activeDocument.layers, []);
 		layerStructure.parse();
-		return layerStructure;
-	}
-	private function getSelectedLayerSet(mode:Mode):Array<Layer>
-	{
-		return switch(mode){
-			case Mode.SELECTED_LAYER: LayerUtil.getSlectedLayerSet(activeDocument);
-			case Mode.IMAGE_EXTENSION_LAYER: null;
-		}
+		layerStructure.rename(renamingMode, renamingLayerType);
 	}
 }
 private class GenerativeLayerRenamingJSXRunner
 {
-	public static function toAbsolutePath(mode:Mode)
+	public static function execute(renamingMode:RenamingMode, renamingLayerType:RenamingLayerType)
 	{
 		var generativeLayerRenaming = new GenerativeLayerRenaming();
 		var errorEvent:GenerativeLayerRenamingInitialErrorEvent = Unserializer.run(generativeLayerRenaming.getInitialErrorEvent());
@@ -118,39 +80,11 @@ private class GenerativeLayerRenamingJSXRunner
 				alert(cast(error, String));
 
 			case GenerativeLayerRenamingInitialErrorEvent.NONE:
-				var serializedImageExtension = Serializer.run(ImageExtension.PNG);
-				var serializedMode = Serializer.run(mode);
-				generativeLayerRenaming.toAbsolutePath(serializedImageExtension, serializedMode);
-		}
-	}
-	public static function toDefaultExtensionName(mode:Mode)
-	{
-		var generativeLayerRenaming = new GenerativeLayerRenaming();
-		var errorEvent:GenerativeLayerRenamingInitialErrorEvent = Unserializer.run(generativeLayerRenaming.getInitialErrorEvent());
-		switch(errorEvent)
-		{
-			case GenerativeLayerRenamingInitialErrorEvent.ERROR(error):
-				alert(cast(error, String));
-
-			case GenerativeLayerRenamingInitialErrorEvent.NONE:
-				var serializedImageExtension = Serializer.run(ImageExtension.PNG);
-				var serializedMode = Serializer.run(mode);
-				generativeLayerRenaming.toSaimple(serializedImageExtension, serializedMode);
-		}
-	}
-	public static function toDefaultName(mode:Mode)
-	{
-		var generativeLayerRenaming = new GenerativeLayerRenaming();
-		var errorEvent:GenerativeLayerRenamingInitialErrorEvent = Unserializer.run(generativeLayerRenaming.getInitialErrorEvent());
-		switch(errorEvent)
-		{
-			case GenerativeLayerRenamingInitialErrorEvent.ERROR(error):
-				alert(cast(error, String));
-
-			case GenerativeLayerRenamingInitialErrorEvent.NONE:
-				var serializedImageExtension = Serializer.run(ImageExtension.PNG);
-				var serializedMode = Serializer.run(mode);
-				generativeLayerRenaming.toDefault(serializedImageExtension, serializedMode);
+				generativeLayerRenaming.execute(
+					"png",
+					Serializer.run(renamingMode),
+					Serializer.run(renamingLayerType)
+				);
 		}
 	}
 }

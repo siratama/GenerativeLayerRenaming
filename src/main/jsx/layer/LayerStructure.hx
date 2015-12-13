@@ -1,5 +1,8 @@
-package jsx.parser.layer;
+package jsx.layer;
 
+import common.RenamingMode;
+import jsx.util.LayerUtil;
+import common.RenamingLayerType;
 import psd.Application;
 import jsx.util.Bounds;
 import psd.Document;
@@ -57,50 +60,44 @@ class LayerStructure
 	}
 
 	//
-	public function toDefaultLayerName(?selectedLayerSet:Array<Layer>)
+	public function rename(renamingMode:RenamingMode, renamingLayerType:RenamingLayerType)
 	{
-		var checkedLayerPropertySet = getCheckedLayerPropertySet(selectedLayerSet);
-		for (layerProperty in checkedLayerPropertySet)
-			layerProperty.toDefaultName();
-	}
-	public function toSaimpleLayerName(?selectedLayerSet:Array<Layer>)
-	{
-		var checkedLayerPropertySet = getCheckedLayerPropertySet(selectedLayerSet);
-		for (layerProperty in checkedLayerPropertySet)
-			layerProperty.toSimpleName();
-	}
-	public function toAbsolutePathLayerName(?selectedLayerSet:Array<Layer>)
-	{
-		var checkedLayerPropertySet = getCheckedLayerPropertySet(selectedLayerSet);
-		for (layerProperty in checkedLayerPropertySet){
-			layerProperty.toAbsolutePathName();
-		}
-	}
-	private function getCheckedLayerPropertySet(selectedLayerSet:Array<Layer>):Array<LayerProperty>
-	{
-		if(selectedLayerSet == null){
-			return getIncluededImageExtensionLayerPropertySet();
-		}
+		var renamedLayerPropertySet = getRenamedLayerPropertySet(renamingLayerType);
+		switch(renamingMode)
+		{
+			case RenamingMode.ABSOLUTE_PATH:
+				for (layerProperty in renamedLayerPropertySet) layerProperty.toAbsolutePathName();
 
-		var checkedLayerPropertySet:Array<LayerProperty> = [];
-		for (selectedLayer in selectedLayerSet)
-		{
-			checkedLayerPropertySet.push(
-				layerPropertyMap[selectedLayer]
-			);
+			case RenamingMode.SIMPLE:
+				for (layerProperty in renamedLayerPropertySet) layerProperty.toSimpleName();
+
+			case RenamingMode.DEFAULT:
+				for (layerProperty in renamedLayerPropertySet) layerProperty.toDefaultName();
 		}
-		return checkedLayerPropertySet;
 	}
-	private function getIncluededImageExtensionLayerPropertySet():Array<LayerProperty>
+	private function getRenamedLayerPropertySet(renamingLayerType:RenamingLayerType):Array<LayerProperty>
 	{
-		var checkedLayerPropertySet:Array<LayerProperty> = [];
-		for (layerProperty in layerPropertySet)
+		var renamedLayerPropertySet:Array<LayerProperty> = [];
+		switch(renamingLayerType)
 		{
-			if(layerProperty.isIncludedImageExtension()){
-				checkedLayerPropertySet.push(layerProperty);
-			}
+			case RenamingLayerType.SELECTED:
+				var selectedLayerSet = LayerUtil.getSlectedLayerSet(document);
+				for (selectedLayer in selectedLayerSet)
+				{
+					renamedLayerPropertySet.push(
+						layerPropertyMap[selectedLayer]
+					);
+				}
+
+			case RenamingLayerType.INCLUDED_IMAGE_EXTENSION:
+				for (layerProperty in layerPropertySet)
+				{
+					if(layerProperty.isIncludedImageExtension()){
+						renamedLayerPropertySet.push(layerProperty);
+					}
+				}
 		}
-		return checkedLayerPropertySet;
+		return renamedLayerPropertySet;
 	}
 }
 

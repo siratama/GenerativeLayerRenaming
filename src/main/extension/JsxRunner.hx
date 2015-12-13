@@ -1,32 +1,36 @@
 package extension;
 
+import common.RenamingLayerType;
+import common.RenamingMode;
 import common.GenerativeLayerRenamingInitialErrorEvent;
 import common.ClassName;
 import common.JsxEvent;
 import haxe.Unserializer;
 import haxe.Serializer;
 
-enum FrameAnimationExporterEvent
+enum JsxRunnerEvent
 {
 	INITIAL_ERROR_EVENT(error:GenerativeLayerRenamingInitialError);
 	SUCCESS;
 	NONE;
 }
 
-class FrameAnimationExporter
+class JsxRunner
 {
 	private var mainFunction:Void->Void;
 	private var csInterface:AbstractCSInterface;
 	private var jsxEvent:JsxEvent;
+	private var event:JsxRunnerEvent;
+	private static inline var INSTANCE_NAME = "jsxInstance";
 
-	private static inline var INSTANCE_NAME = "frameAnimationExport";
-	
-	private var event:FrameAnimationExporterEvent;
+	private var imageExtension:String;
+	private var renamingMode:RenamingMode;
+	private var renamingLayerType:RenamingLayerType;
 
-	public function getEvent():FrameAnimationExporterEvent
+	public function getEvent():JsxRunnerEvent
 	{
 		var n = event;
-		event = FrameAnimationExporterEvent.NONE;
+		event = JsxRunnerEvent.NONE;
 		return n;
 	}
 
@@ -39,16 +43,16 @@ class FrameAnimationExporter
 		mainFunction();
 	}
 
-	public function call(frame1offset:Bool, ignoredFrame1Output:Bool, sameNameLayerIsIdentical:Bool)
+	public function call(imageExtension:String, renamingMode:RenamingMode, renamingLayerType:RenamingLayerType)
 	{
-		event = FrameAnimationExporterEvent.NONE;
+		this.imageExtension = imageExtension;
+		this.renamingMode = renamingMode;
+		this.renamingLayerType = renamingLayerType;
+
+		event = JsxRunnerEvent.NONE;
 		jsxEvent = JsxEvent.NONE;
 
-		var frame1offsetData = Serializer.run(frame1offset);
-		var ignoredFrame1OutputData = Serializer.run(ignoredFrame1Output);
-		var sameNameLayerIsIdenticalData = Serializer.run(sameNameLayerIsIdentical);
-
-		csInterface.evalScript('var $INSTANCE_NAME = new ${ClassName.FRAME_ANIMATION_EXPORT}("$frame1offsetData", "$ignoredFrame1OutputData", "$sameNameLayerIsIdenticalData");');
+		csInterface.evalScript('var $INSTANCE_NAME = new ${ClassName.JSX_CLASS}();');
 
 		csInterface.evalScript('$INSTANCE_NAME.getInitialErrorEvent();', function(result){
 			jsxEvent = JsxEvent.GOTTEN(result);
@@ -66,7 +70,7 @@ class FrameAnimationExporter
 				switch(initialErrorEvent)
 				{
 					case GenerativeLayerRenamingInitialErrorEvent.ERROR(error):
-						destroy(FrameAnimationExporterEvent.INITIAL_ERROR_EVENT(error));
+						destroy(JsxRunnerEvent.INITIAL_ERROR_EVENT(error));
 					case GenerativeLayerRenamingInitialErrorEvent.NONE:
 						execute();
 				}
@@ -74,8 +78,11 @@ class FrameAnimationExporter
 	}
 	private function execute()
 	{
-		csInterface.evalScript('$INSTANCE_NAME.execute();');
-		destroy(FrameAnimationExporterEvent.SUCCESS);
+		var serializedRenamingMode = Serializer.run(renamingMode);
+		var serializedRenamingLayerType = Serializer.run(renamingLayerType);
+
+		csInterface.evalScript('$INSTANCE_NAME.execute("$imageExtension", "$serializedRenamingMode", "$serializedRenamingLayerType");');
+		destroy(JsxRunnerEvent.SUCCESS);
 	}
 	private function recieveJsxEvent():JsxEvent
 	{
@@ -83,7 +90,7 @@ class FrameAnimationExporter
 		jsxEvent = JsxEvent.NONE;
 		return n;
 	}
-	private function destroy(event:FrameAnimationExporterEvent)
+	private function destroy(event:JsxRunnerEvent)
 	{
 		this.event = event;
 		mainFunction = finish;

@@ -1,5 +1,6 @@
 package common;
 
+/*
 @:enum abstract ImageExtension(String) to String
 {
 	var PNG = ".png";
@@ -29,4 +30,23 @@ enum IncludedImageExtension
 {
 	NONE;
 	EXISTS(imageExtension:ImageExtension);
+}
+*/
+
+enum IncludedImageExtension
+{
+	NONE;
+	EXISTS(imageExtension:String);
+}
+class ImageExtension
+{
+	public static inline var COLUMN = ".";
+	public static function getIncludedImageExtension(layerName:String):IncludedImageExtension
+	{
+		var splited = layerName.split(COLUMN);
+		return (splited.length > 1) ?
+			//IncludedImageExtension.EXISTS(splited[splited.length - 1]):
+			IncludedImageExtension.EXISTS(splited.pop()):
+			IncludedImageExtension.NONE;
+	}
 }

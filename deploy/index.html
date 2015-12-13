@@ -3,18 +3,54 @@
 <html>
 <head>
 	<meta charset="UTF-8">
-	<title>FrameAnimationExport</title>
+	<title>GenerativeLayerRenaming</title>
 	<link rel="stylesheet" type="text/css" href="./css/index.css">
 
 	<script src="./js/CSInterface-4.0.0.js"></script>
 	<script src="./js/jquery.js"></script>
 	<script src="./js/index.js"></script>
-
 </head>
 <body>
 
 <div id="container">
+    <p class="title" id="setting_title">Setting</p>
+    <div id="setting">
+        <div id="image_extension">
+            <p>Image Extension</p>
+            <input type="text" value="png" />
+        </div>
 
+        <div id="renaming_layer_type">
+            <p>Renaming Layer</p>
+            <ul>
+                <li>
+                    <label>
+                        <input type="radio" name="renaming_layer_type" class="selected" checked /> Selected
+                    </label>
+                </li>
+                <li>
+                    <label>
+                        <input type="radio" name="renaming_layer_type" class="included_image_extension" /> Image Extension
+                    </label>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <p class="title" id="run_title">Run</p>
+    <ul id="run">
+        <li id="absolute_path">
+            <button class="absolute_path">ABSOLUTE PATH</button>
+        </li>
+        <li id="simple">
+            <button class="simple">SIMPLE</button>
+        </li>
+        <li id="default">
+            <button class="default">DEFAULT</button>
+        </li>
+    </ul>
+
+    <!--
     <div class="normal">
         <button class="run_button">RUN</button>
     </div>
@@ -33,6 +69,7 @@
             <input type="checkbox" class="same_name_layer_is_identical" /> Same name layer is identical.
         </li>
     </ul>
+    -->
 </div>
 
 </body>

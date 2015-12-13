@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ExtensionManifest Version="4.0" ExtensionBundleId="com.dango_itimi.FrameAnimationExport" ExtensionBundleVersion="1.0.0"
+<ExtensionManifest Version="4.0" ExtensionBundleId="com.dango_itimi.GenerativeLayerRenaming" ExtensionBundleVersion="1.0.0"
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<Author>
 		<![CDATA[siratama]]>
 	</Author>
     <ExtensionList>
-		<Extension Id="com.dango_itimi.FrameAnimationExport.extension1" Version="1.0" />
+		<Extension Id="com.dango_itimi.GenerativeLayerRenaming.extension1" Version="1.0" />
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>
@@ -21,7 +21,7 @@
 		</RequiredRuntimeList>
 	</ExecutionEnvironment>
 	<DispatchInfoList>
-		<Extension Id="com.dango_itimi.FrameAnimationExport.extension1">
+		<Extension Id="com.dango_itimi.GenerativeLayerRenaming.extension1">
 			<DispatchInfo >
 				<Resources>
 				<MainPath>./index.html</MainPath>
@@ -31,10 +31,10 @@
 				</Lifecycle>
 				<UI>
 					<Type>Panel</Type>
-					<Menu>FrameAnimationExport</Menu>
+					<Menu>GenerativeLayerRenaming</Menu>
 					<Geometry>
 						<Size>
-							<Height>180</Height>
+							<Height>280</Height>
 							<Width>170</Width>
 						</Size>
 					</Geometry>

@@ -1,6 +1,8 @@
 package extension;
 
-import extension.FrameAnimationExporter.FrameAnimationExporterEvent;
+import common.RenamingMode;
+import extension.View.ViewEvent;
+import extension.JsxRunner.JsxRunnerEvent;
 import js.Browser;
 import haxe.Timer;
 
@@ -14,7 +16,7 @@ class Panel
 	private var csInterface:AbstractCSInterface;
 	private var jsxLoader:JsxLoader;
 	private var view:View;
-	private var frameAnimationExporter:FrameAnimationExporter;
+	private var jsxRunner:JsxRunner;
 
 	public static function main(){
 		new Panel();
@@ -26,7 +28,7 @@ class Panel
 	{
 		csInterface = AbstractCSInterface.create();
 		jsxLoader = new JsxLoader();
-		frameAnimationExporter = new FrameAnimationExporter();
+		jsxRunner = new JsxRunner();
 		view = View.instance;
 
 		startRunning(loadJsx, TIMER_SPEED_RUNNING);
@@ -65,30 +67,29 @@ class Panel
 	}
 	private function observeToClickUI()
 	{
-		if(view.runButton.isClicked()){
-			initializeToCallFrameAnimationExport(false);
-		}
-		else if(view.runFrame1OffsetButton.isClicked()){
-			initializeToCallFrameAnimationExport(true);
+		switch(view.getEvent()){
+			case ViewEvent.NONE: return;
+			case ViewEvent.CLICKED(renamingMode):
+				initializeToCallFrameAnimationExport(renamingMode);
 		}
 	}
-	private function initializeToCallFrameAnimationExport(frame1offset:Bool)
+	private function initializeToCallFrameAnimationExport(renamingMode:RenamingMode)
 	{
-		frameAnimationExporter.call(frame1offset, view.isIgnoredFrame1Output(), view.sameNameLayerIsIdentical());
+		jsxRunner.call(view.getImageExtension(), renamingMode, view.getRenamingLayerType());
 		changeRunning(callFrameAnimationExport, TIMER_SPEED_RUNNING);
 	}
 	private function callFrameAnimationExport()
 	{
-		frameAnimationExporter.run();
-		var event = frameAnimationExporter.getEvent();
+		jsxRunner.run();
+		var event = jsxRunner.getEvent();
 		switch(event){
-			case FrameAnimationExporterEvent.NONE: return;
+			case JsxRunnerEvent.NONE: return;
 
-			case FrameAnimationExporterEvent.INITIAL_ERROR_EVENT(error):
-				js.Lib.alert(cast(error, String));
+			case JsxRunnerEvent.INITIAL_ERROR_EVENT(error):
+				js.Browser.alert(cast(error, String));
 				initializeToClickUI();
 
-			case FrameAnimationExporterEvent.SUCCESS:
+			case JsxRunnerEvent.SUCCESS:
 				initializeToClickUI();
 		}
 	}

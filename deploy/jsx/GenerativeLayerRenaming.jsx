@@ -210,28 +210,57 @@ Type["typeof"] = function(v) {
 		return ValueType.TUnknown;
 	}
 };
+Type.enumEq = function(a,b) {
+	if(a == b) return true;
+	try {
+		if(a[0] != b[0]) return false;
+		var _g1 = 2;
+		var _g = a.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			if(!Type.enumEq(a[i],b[i])) return false;
+		}
+		var e = a.__enum__;
+		if(e != b.__enum__ || e == null) return false;
+	} catch( e1 ) {
+		if (e1 instanceof js__$Boot_HaxeError) e1 = e1.val;
+		return false;
+	}
+	return true;
+};
 var common_GenerativeLayerRenamingInitialErrorEvent = $hxClasses["common.GenerativeLayerRenamingInitialErrorEvent"] = { __ename__ : ["common","GenerativeLayerRenamingInitialErrorEvent"], __constructs__ : ["NONE","ERROR"] };
 common_GenerativeLayerRenamingInitialErrorEvent.NONE = ["NONE",0];
 common_GenerativeLayerRenamingInitialErrorEvent.NONE.toString = $estr;
 common_GenerativeLayerRenamingInitialErrorEvent.NONE.__enum__ = common_GenerativeLayerRenamingInitialErrorEvent;
 common_GenerativeLayerRenamingInitialErrorEvent.ERROR = function(error) { var $x = ["ERROR",1,error]; $x.__enum__ = common_GenerativeLayerRenamingInitialErrorEvent; $x.toString = $estr; return $x; };
-var common_ImageExtensionUtil = $hxClasses["common.ImageExtensionUtil"] = function() { };
-common_ImageExtensionUtil.__name__ = ["common","ImageExtensionUtil"];
-common_ImageExtensionUtil.getIncludedImageExtension = function(layerName) {
-	if(layerName.indexOf(".png") != -1) return common_IncludedImageExtension.EXISTS(".png"); else if(layerName.indexOf(".jpg") != -1) return common_IncludedImageExtension.EXISTS(".jpg"); else if(layerName.indexOf(".gif") != -1) return common_IncludedImageExtension.EXISTS(".gif"); else return common_IncludedImageExtension.NONE;
-};
 var common_IncludedImageExtension = $hxClasses["common.IncludedImageExtension"] = { __ename__ : ["common","IncludedImageExtension"], __constructs__ : ["NONE","EXISTS"] };
 common_IncludedImageExtension.NONE = ["NONE",0];
 common_IncludedImageExtension.NONE.toString = $estr;
 common_IncludedImageExtension.NONE.__enum__ = common_IncludedImageExtension;
 common_IncludedImageExtension.EXISTS = function(imageExtension) { var $x = ["EXISTS",1,imageExtension]; $x.__enum__ = common_IncludedImageExtension; $x.toString = $estr; return $x; };
-var common_Mode = $hxClasses["common.Mode"] = { __ename__ : ["common","Mode"], __constructs__ : ["SELECTED_LAYER","IMAGE_EXTENSION_LAYER"] };
-common_Mode.SELECTED_LAYER = ["SELECTED_LAYER",0];
-common_Mode.SELECTED_LAYER.toString = $estr;
-common_Mode.SELECTED_LAYER.__enum__ = common_Mode;
-common_Mode.IMAGE_EXTENSION_LAYER = ["IMAGE_EXTENSION_LAYER",1];
-common_Mode.IMAGE_EXTENSION_LAYER.toString = $estr;
-common_Mode.IMAGE_EXTENSION_LAYER.__enum__ = common_Mode;
+var common_ImageExtension = $hxClasses["common.ImageExtension"] = function() { };
+common_ImageExtension.__name__ = ["common","ImageExtension"];
+common_ImageExtension.getIncludedImageExtension = function(layerName) {
+	var splited = layerName.split(".");
+	if(splited.length > 1) return common_IncludedImageExtension.EXISTS(splited.pop()); else return common_IncludedImageExtension.NONE;
+};
+var common_RenamingLayerType = $hxClasses["common.RenamingLayerType"] = { __ename__ : ["common","RenamingLayerType"], __constructs__ : ["SELECTED","INCLUDED_IMAGE_EXTENSION"] };
+common_RenamingLayerType.SELECTED = ["SELECTED",0];
+common_RenamingLayerType.SELECTED.toString = $estr;
+common_RenamingLayerType.SELECTED.__enum__ = common_RenamingLayerType;
+common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION = ["INCLUDED_IMAGE_EXTENSION",1];
+common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION.toString = $estr;
+common_RenamingLayerType.INCLUDED_IMAGE_EXTENSION.__enum__ = common_RenamingLayerType;
+var common_RenamingMode = $hxClasses["common.RenamingMode"] = { __ename__ : ["common","RenamingMode"], __constructs__ : ["ABSOLUTE_PATH","SIMPLE","DEFAULT"] };
+common_RenamingMode.ABSOLUTE_PATH = ["ABSOLUTE_PATH",0];
+common_RenamingMode.ABSOLUTE_PATH.toString = $estr;
+common_RenamingMode.ABSOLUTE_PATH.__enum__ = common_RenamingMode;
+common_RenamingMode.SIMPLE = ["SIMPLE",1];
+common_RenamingMode.SIMPLE.toString = $estr;
+common_RenamingMode.SIMPLE.__enum__ = common_RenamingMode;
+common_RenamingMode.DEFAULT = ["DEFAULT",2];
+common_RenamingMode.DEFAULT.toString = $estr;
+common_RenamingMode.DEFAULT.__enum__ = common_RenamingMode;
 var haxe_IMap = $hxClasses["haxe.IMap"] = function() { };
 haxe_IMap.__name__ = ["haxe","IMap"];
 var haxe__$Int64__$_$_$Int64 = $hxClasses["haxe._Int64.___Int64"] = function(high,low) {
@@ -1296,42 +1325,20 @@ GenerativeLayerRenaming.prototype = {
 		if(error == null) event = common_GenerativeLayerRenamingInitialErrorEvent.NONE; else event = common_GenerativeLayerRenamingInitialErrorEvent.ERROR(error);
 		return haxe_Serializer.run(event);
 	}
-	,toAbsolutePath: function(modeString) {
-		var mode = haxe_Unserializer.run(modeString);
+	,execute: function(imageExtension,serializedRenamingMode,serializedRenamingLayerType) {
+		var renamingMode = haxe_Unserializer.run(serializedRenamingMode);
+		var renamingLayerType = haxe_Unserializer.run(serializedRenamingLayerType);
+		(jsx_OptionalParameter.instance == null?jsx_OptionalParameter.instance = new jsx_OptionalParameter():jsx_OptionalParameter.instance).set(imageExtension);
 		this.activeDocument = this.application.activeDocument;
-		var layerStructure = this.createLayerStructure();
-		layerStructure.toAbsolutePathLayerName(this.getSelectedLayerSet(mode));
-	}
-	,toDefault: function(modeString) {
-		var mode = haxe_Unserializer.run(modeString);
-		this.activeDocument = this.application.activeDocument;
-		var layerStructure = this.createLayerStructure();
-		layerStructure.toDefaultLayerName(this.getSelectedLayerSet(mode));
-	}
-	,toSaimple: function(modeString) {
-		var mode = haxe_Unserializer.run(modeString);
-		this.activeDocument = this.application.activeDocument;
-		var layerStructure = this.createLayerStructure();
-		layerStructure.toSaimpleLayerName(this.getSelectedLayerSet(mode));
-	}
-	,createLayerStructure: function() {
-		var layerStructure = new jsx_parser_layer_LayerStructure(this.activeDocument,this.activeDocument.layers,[]);
+		var layerStructure = new jsx_layer_LayerStructure(this.activeDocument,this.activeDocument.layers,[]);
 		layerStructure.parse();
-		return layerStructure;
-	}
-	,getSelectedLayerSet: function(mode) {
-		switch(mode[1]) {
-		case 0:
-			return jsx_util_LayerUtil.getSlectedLayerSet(this.activeDocument);
-		case 1:
-			return null;
-		}
+		layerStructure.rename(renamingMode,renamingLayerType);
 	}
 	,__class__: GenerativeLayerRenaming
 };
 var jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner = $hxClasses["jsx._GenerativeLayerRenaming.GenerativeLayerRenamingJSXRunner"] = function() { };
 jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner.__name__ = ["jsx","_GenerativeLayerRenaming","GenerativeLayerRenamingJSXRunner"];
-jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner.toAbsolutePath = function(mode) {
+jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner.execute = function(renamingMode,renamingLayerType) {
 	var generativeLayerRenaming = new GenerativeLayerRenaming();
 	var errorEvent = haxe_Unserializer.run(generativeLayerRenaming.getInitialErrorEvent());
 	switch(errorEvent[1]) {
@@ -1340,50 +1347,33 @@ jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner.toAbsolutePath = 
 		psd_Lib.alert(js_Boot.__cast(error , String));
 		break;
 	case 0:
-		var modeString = haxe_Serializer.run(mode);
-		generativeLayerRenaming.toAbsolutePath(modeString);
+		generativeLayerRenaming.execute("png",haxe_Serializer.run(renamingMode),haxe_Serializer.run(renamingLayerType));
 		break;
 	}
 };
-jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner.toDefaultExtensionName = function(mode) {
-	var generativeLayerRenaming = new GenerativeLayerRenaming();
-	var errorEvent = haxe_Unserializer.run(generativeLayerRenaming.getInitialErrorEvent());
-	switch(errorEvent[1]) {
-	case 1:
-		var error = errorEvent[2];
-		psd_Lib.alert(js_Boot.__cast(error , String));
-		break;
-	case 0:
-		var modeString = haxe_Serializer.run(mode);
-		generativeLayerRenaming.toSaimple(modeString);
-		break;
-	}
+var jsx_OptionalParameter = $hxClasses["jsx.OptionalParameter"] = function() {
 };
-jsx__$GenerativeLayerRenaming_GenerativeLayerRenamingJSXRunner.toDefaultName = function(mode) {
-	var generativeLayerRenaming = new GenerativeLayerRenaming();
-	var errorEvent = haxe_Unserializer.run(generativeLayerRenaming.getInitialErrorEvent());
-	switch(errorEvent[1]) {
-	case 1:
-		var error = errorEvent[2];
-		psd_Lib.alert(js_Boot.__cast(error , String));
-		break;
-	case 0:
-		var modeString = haxe_Serializer.run(mode);
-		generativeLayerRenaming.toDefault(modeString);
-		break;
-	}
+jsx_OptionalParameter.__name__ = ["jsx","OptionalParameter"];
+jsx_OptionalParameter.get_instance = function() {
+	if(jsx_OptionalParameter.instance == null) return jsx_OptionalParameter.instance = new jsx_OptionalParameter(); else return jsx_OptionalParameter.instance;
 };
-var jsx_parser_layer_LayerProperty = $hxClasses["jsx.parser.layer.LayerProperty"] = function(layer,directoryPath) {
+jsx_OptionalParameter.prototype = {
+	set: function(imageExtension) {
+		this.imageExtension = imageExtension;
+	}
+	,__class__: jsx_OptionalParameter
+};
+var jsx_layer_LayerProperty = $hxClasses["jsx.layer.LayerProperty"] = function(layer,directoryPath) {
 	this.layer = layer;
 	this.layerName = layer.name;
 	this.directoryPath = directoryPath;
 	this.parseLayerName();
 	if(directoryPath.length == 0) this.absolutePath = this.defaultName; else this.absolutePath = [directoryPath.join("/"),this.defaultName].join("/");
 };
-jsx_parser_layer_LayerProperty.__name__ = ["jsx","parser","layer","LayerProperty"];
-jsx_parser_layer_LayerProperty.prototype = {
+jsx_layer_LayerProperty.__name__ = ["jsx","layer","LayerProperty"];
+jsx_layer_LayerProperty.prototype = {
 	parseLayerName: function() {
-		this.includedImageExtension = common_ImageExtensionUtil.getIncludedImageExtension(this.layerName);
+		this.includedImageExtension = common_ImageExtension.getIncludedImageExtension(this.layerName);
 		{
 			var _g = this.includedImageExtension;
 			switch(_g[1]) {
@@ -1392,33 +1382,42 @@ jsx_parser_layer_LayerProperty.prototype = {
 				break;
 			case 1:
 				var imageExtension = _g[2];
-				var tempPath = this.layerName.split(imageExtension)[0];
+				var tempPath = this.layerName.split("." + imageExtension)[0];
 				this.defaultName = tempPath.split("/").pop();
 				break;
 			}
 		}
 	}
 	,isIncludedImageExtension: function() {
-		return this.includedImageExtension != common_IncludedImageExtension.NONE;
+		return !Type.enumEq(this.includedImageExtension,common_IncludedImageExtension.NONE);
 	}
 	,equals: function(check) {
 		return this.layer == check;
 	}
 	,toDefaultName: function() {
-		this.layer.name = this.defaultName;
+		if(this.isChanged()) this.layer.name = this.defaultName;
 	}
 	,toSimpleName: function() {
-		this.layer.name = this.defaultName + ".png";
+		if(this.isChanged()) this.layer.name = this.defaultName + "." + (jsx_OptionalParameter.instance == null?jsx_OptionalParameter.instance = new jsx_OptionalParameter():jsx_OptionalParameter.instance).imageExtension;
 	}
 	,toAbsolutePathName: function() {
-		this.layer.name = this.absolutePath + ".png";
+		if(this.isChanged()) this.layer.name = this.absolutePath + "." + (jsx_OptionalParameter.instance == null?jsx_OptionalParameter.instance = new jsx_OptionalParameter():jsx_OptionalParameter.instance).imageExtension;
 	}
-	,getDirectoryPathString: function() {
-		return this.directoryPath.join("/");
+	,isChanged: function() {
+		{
+			var _g = this.includedImageExtension;
+			switch(_g[1]) {
+			case 0:
+				return true;
+			case 1:
+				var imageExtension = _g[2];
+				return (jsx_OptionalParameter.instance == null?jsx_OptionalParameter.instance = new jsx_OptionalParameter():jsx_OptionalParameter.instance).imageExtension == imageExtension;
+			}
+		}
 	}
-	,__class__: jsx_parser_layer_LayerProperty
+	,__class__: jsx_layer_LayerProperty
 };
-var jsx_parser_layer_LayerStructure = $hxClasses["jsx.parser.layer.LayerStructure"] = function(document,layers,parentDirectoryPath) {
+var jsx_layer_LayerStructure = $hxClasses["jsx.layer.LayerStructure"] = function(document,layers,parentDirectoryPath) {
 	this.document = document;
 	this.layers = layers;
 	this.parentDirectoryPath = parentDirectoryPath;
@@ -1426,15 +1425,15 @@ var jsx_parser_layer_LayerStructure = $hxClasses["jsx.parser.layer.LayerStructur
 	this.layerPropertySet = [];
 	this.layerPropertyMap = new haxe_ds_ObjectMap();
 };
-jsx_parser_layer_LayerStructure.__name__ = ["jsx","parser","layer","LayerStructure"];
-jsx_parser_layer_LayerStructure.prototype = {
+jsx_layer_LayerStructure.__name__ = ["jsx","layer","LayerStructure"];
+jsx_layer_LayerStructure.prototype = {
 	parse: function() {
 		var _g1 = 0;
 		var _g = this.layers.length;
 		while(_g1 < _g) {
 			var i = _g1++;
 			var layer = this.layers[i];
-			var layerProperty = new jsx_parser_layer_LayerProperty(layer,this.parentDirectoryPath);
+			var layerProperty = new jsx_layer_LayerProperty(layer,this.parentDirectoryPath);
 			this.layerPropertySet.push(layerProperty);
 			{
 				this.layerPropertyMap.set(layer,layerProperty);
@@ -1445,7 +1444,7 @@ jsx_parser_layer_LayerStructure.prototype = {
 				layerSet = js_Boot.__cast(layer , LayerSet);
 				var directoryPath = this.parentDirectoryPath.slice();
 				directoryPath.push(layerProperty.defaultName);
-				var childLayerStructure = new jsx_parser_layer_LayerStructure(this.document,layerSet.layers,directoryPath);
+				var childLayerStructure = new jsx_layer_LayerStructure(this.document,layerSet.layers,directoryPath);
 				childLayerStructure.parse();
 				this.layerPropertySet = this.layerPropertySet.concat(childLayerStructure.layerPropertySet);
 				var $it0 = childLayerStructure.layerPropertyMap.keys();
@@ -1458,56 +1457,60 @@ jsx_parser_layer_LayerStructure.prototype = {
 			}
 		}
 	}
-	,toDefaultLayerName: function(selectedLayerSet) {
-		var checkedLayerPropertySet = this.getCheckedLayerPropertySet(selectedLayerSet);
-		var _g = 0;
-		while(_g < checkedLayerPropertySet.length) {
-			var layerProperty = checkedLayerPropertySet[_g];
-			++_g;
-			layerProperty.toDefaultName();
+	,rename: function(renamingMode,renamingLayerType) {
+		var renamedLayerPropertySet = this.getRenamedLayerPropertySet(renamingLayerType);
+		switch(renamingMode[1]) {
+		case 0:
+			var _g = 0;
+			while(_g < renamedLayerPropertySet.length) {
+				var layerProperty = renamedLayerPropertySet[_g];
+				++_g;
+				layerProperty.toAbsolutePathName();
+			}
+			break;
+		case 1:
+			var _g1 = 0;
+			while(_g1 < renamedLayerPropertySet.length) {
+				var layerProperty1 = renamedLayerPropertySet[_g1];
+				++_g1;
+				layerProperty1.toSimpleName();
+			}
+			break;
+		case 2:
+			var _g2 = 0;
+			while(_g2 < renamedLayerPropertySet.length) {
+				var layerProperty2 = renamedLayerPropertySet[_g2];
+				++_g2;
+				layerProperty2.toDefaultName();
+			}
+			break;
 		}
 	}
-	,toSaimpleLayerName: function(selectedLayerSet) {
-		var checkedLayerPropertySet = this.getCheckedLayerPropertySet(selectedLayerSet);
-		var _g = 0;
-		while(_g < checkedLayerPropertySet.length) {
-			var layerProperty = checkedLayerPropertySet[_g];
-			++_g;
-			layerProperty.toSimpleName();
+	,getRenamedLayerPropertySet: function(renamingLayerType) {
+		var renamedLayerPropertySet = [];
+		switch(renamingLayerType[1]) {
+		case 0:
+			var selectedLayerSet = jsx_util_LayerUtil.getSlectedLayerSet(this.document);
+			var _g = 0;
+			while(_g < selectedLayerSet.length) {
+				var selectedLayer = selectedLayerSet[_g];
+				++_g;
+				renamedLayerPropertySet.push(this.layerPropertyMap.h[selectedLayer.__id__]);
+			}
+			break;
+		case 1:
+			var _g1 = 0;
+			var _g11 = this.layerPropertySet;
+			while(_g1 < _g11.length) {
+				var layerProperty = _g11[_g1];
+				++_g1;
+				if(layerProperty.isIncludedImageExtension()) renamedLayerPropertySet.push(layerProperty);
+			}
+			break;
 		}
+		return renamedLayerPropertySet;
 	}
-	,toAbsolutePathLayerName: function(selectedLayerSet) {
-		var checkedLayerPropertySet = this.getCheckedLayerPropertySet(selectedLayerSet);
-		var _g = 0;
-		while(_g < checkedLayerPropertySet.length) {
-			var layerProperty = checkedLayerPropertySet[_g];
-			++_g;
-			layerProperty.toAbsolutePathName();
-		}
-	}
-	,getCheckedLayerPropertySet: function(selectedLayerSet) {
-		if(selectedLayerSet == null) return this.getIncluededImageExtensionLayerPropertySet();
-		var checkedLayerPropertySet = [];
-		var _g = 0;
-		while(_g < selectedLayerSet.length) {
-			var selectedLayer = selectedLayerSet[_g];
-			++_g;
-			checkedLayerPropertySet.push(this.layerPropertyMap.h[selectedLayer.__id__]);
-		}
-		return checkedLayerPropertySet;
-	}
-	,getIncluededImageExtensionLayerPropertySet: function() {
-		var checkedLayerPropertySet = [];
-		var _g = 0;
-		var _g1 = this.layerPropertySet;
-		while(_g < _g1.length) {
-			var layerProperty = _g1[_g];
-			++_g;
-			if(layerProperty.isIncludedImageExtension()) checkedLayerPropertySet.push(layerProperty);
-		}
-		return checkedLayerPropertySet;
-	}
-	,__class__: jsx_parser_layer_LayerStructure
+	,__class__: jsx_layer_LayerStructure
 };
 var jsx_util_Bounds = $hxClasses["jsx.util.Bounds"] = function(left,top,right,bottom) {
 	this.left = left;
@@ -1638,6 +1641,7 @@ var ArrayBuffer = $global.ArrayBuffer || js_html_compat_ArrayBuffer;
 if(ArrayBuffer.prototype.slice == null) ArrayBuffer.prototype.slice = js_html_compat_ArrayBuffer.sliceImpl;
 var DataView = $global.DataView || js_html_compat_DataView;
 var Uint8Array = $global.Uint8Array || js_html_compat_Uint8Array._new;
+common_ImageExtension.COLUMN = ".";
 haxe_Serializer.USE_CACHE = false;
 haxe_Serializer.USE_ENUM_INDEX = false;
 haxe_Serializer.BASE64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%:";
