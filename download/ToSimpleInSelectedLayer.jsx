@@ -1331,9 +1331,20 @@ GenerativeLayerRenaming.prototype = {
 		var renamingLayerType = haxe_Unserializer.run(serializedRenamingLayerType);
 		(jsx_OptionalParameter.instance == null?jsx_OptionalParameter.instance = new jsx_OptionalParameter():jsx_OptionalParameter.instance).set(imageExtension);
 		this.activeDocument = this.application.activeDocument;
+		this.selectForceSingleLayer(renamingLayerType);
 		var layerStructure = new jsx_layer_LayerStructure(this.activeDocument,this.activeDocument.layers,[]);
 		layerStructure.parse();
 		layerStructure.rename(renamingMode,renamingLayerType);
+	}
+	,selectForceSingleLayer: function(renamingLayerType) {
+		switch(renamingLayerType[1]) {
+		case 0:
+			return;
+		case 1:
+			var layer = this.activeDocument.layers[0];
+			jsx_util_LayerUtil.selectSingleLayer(layer.name);
+			break;
+		}
 	}
 	,__class__: GenerativeLayerRenaming
 };
@@ -1575,8 +1586,13 @@ jsx_util_History.undo = function(document,count) {
 var jsx_util_LayerUtil = $hxClasses["jsx.util.LayerUtil"] = function() { };
 jsx_util_LayerUtil.__name__ = ["jsx","util","LayerUtil"];
 jsx_util_LayerUtil.getSlectedLayerSet = function(document) {
-	jsx_util_LayerUtil.selectedLayerToLayerSet();
 	var selectedLayerSet = [];
+	try {
+		jsx_util_LayerUtil.selectedLayerToLayerSet(document);
+	} catch( error ) {
+		if (error instanceof js__$Boot_HaxeError) error = error.val;
+		return selectedLayerSet;
+	}
 	var tempLayerSet;
 	tempLayerSet = js_Boot.__cast(document.activeLayer , LayerSet);
 	var _g1 = 0;
@@ -1589,13 +1605,25 @@ jsx_util_LayerUtil.getSlectedLayerSet = function(document) {
 	jsx_util_History.undo(document);
 	return selectedLayerSet;
 };
-jsx_util_LayerUtil.selectedLayerToLayerSet = function() {
+jsx_util_LayerUtil.selectedLayerToLayerSet = function(document) {
 	var idGrp = stringIDToTypeID("groupLayersEvent");
 	var descGrp = new ActionDescriptor();
 	var refGrp = new ActionReference();
 	refGrp.putEnumerated(charIDToTypeID("Lyr "),charIDToTypeID("Ordn"),charIDToTypeID("Trgt"));
 	descGrp.putReference(charIDToTypeID("null"),refGrp);
-	executeAction(idGrp,descGrp,DialogModes.ALL);
+	executeAction(idGrp,descGrp,DialogModes.NO);
+};
+jsx_util_LayerUtil.selectSingleLayer = function(layerName) {
+	var idslct = charIDToTypeID("slct");
+	var desc = new ActionDescriptor();
+	var idnull = charIDToTypeID("null");
+	var ref = new ActionReference();
+	var idLyr = charIDToTypeID("Lyr ");
+	ref.putName(idLyr,layerName);
+	desc.putReference(idnull,ref);
+	var idMkVs = charIDToTypeID("MkVs");
+	desc.putBoolean(idMkVs,false);
+	executeAction(idslct,desc,DialogModes.NO);
 };
 var lib_FileDirectory = $hxClasses["lib.FileDirectory"] = function() { };
 lib_FileDirectory.__name__ = ["lib","FileDirectory"];

@@ -63,9 +63,27 @@ class GenerativeLayerRenaming
 		OptionalParameter.instance.set(imageExtension);
 
 		activeDocument = application.activeDocument;
+		selectForceSingleLayer(renamingLayerType);
+
 		var layerStructure = new LayerStructure(activeDocument, activeDocument.layers, []);
 		layerStructure.parse();
 		layerStructure.rename(renamingMode, renamingLayerType);
+	}
+
+	/**
+	 * When a layer name is changed when no layers are selected, an error occurs.
+	 * 一つもレイヤーが選択されていない状態で Layer.name の変更を行うとエラーが発生するため
+	 * 強制的に適当なレイヤーを選択
+	 */
+	private function selectForceSingleLayer(renamingLayerType:RenamingLayerType)
+	{
+		switch(renamingLayerType)
+		{
+			case RenamingLayerType.SELECTED: return;
+			case RenamingLayerType.INCLUDED_IMAGE_EXTENSION:
+				var layer:Layer = activeDocument.layers[0];
+				LayerUtil.selectSingleLayer(layer.name);
+		}
 	}
 }
 private class GenerativeLayerRenamingJSXRunner
