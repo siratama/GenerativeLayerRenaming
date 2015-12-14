@@ -6,7 +6,7 @@ Document Language [English] | [[Japanese](README_jp.md)]
 ![introduction](assets/main.png)
 
 GenerativeLayerRenaming is a extension panel for Photoshop CC.
-Picture extension setting to a layer can be simplified for Photoshop Generating Image Assets.
+Image extension setting to a layer can be simplified for Photoshop Generating Image Assets.
 
 ---
 ## Download
